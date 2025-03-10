@@ -34,6 +34,23 @@ export const fetchWeatherByCity = async (city, units = 'metric') => {
   }
 };
 
+export const fetchWeatherById = async (id, units = 'metric') => {
+  try {
+    const response = await fetch(
+      `${CONFIG.WEATHER_API_URL}/weather?id=${id}&units=${units}&appid=${CONFIG.API_KEY}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Weather API error: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching weather by ID:', error);
+    throw error;
+  }
+};
+
 export const fetchCitiesByQuery = async (query, limit = 20, units = 'metric') => {
   try {
     const response = await fetch(

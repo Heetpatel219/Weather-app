@@ -1,17 +1,39 @@
 import React from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useAtom } from 'jotai';
+import { addVisitedCityAtom } from '../store/weatherStore';
 
-const WeatherCard = ({ data, isLocal = false, units, onDetailsClick }) => {
+const WeatherCard = ({ data, isLocal = false, units }) => {
+  const router = useRouter();
+  const [, addVisitedCity] = useAtom(addVisitedCityAtom);
+
   const formatTime = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleDetailsClick = () => {
+    // Add to visited cities
+    addVisitedCity({...data, units});
+    
+    // Navigate to city details page
+    router.push(`/city/${data.id}`);
   };
 
   return (
     <div className="weather-card mb-4">
       <div className="d-flex justify-content-between align-items-center">
         <div>
-          <h3>{data.name}, {data.sys.country}</h3>
+          <h3 className="d-flex align-items-center">
+            {data.name}, {data.sys.country}
+            <img 
+              src={`http://openweathermap.org/images/flags/${data.sys.country.toLowerCase()}.png`}
+              alt={`${data.sys.country} flag`}
+              className="ms-2"
+              width={24}
+              height={18}
+            />
+          </h3>
           <p className="mb-0">{Math.round(data.main.temp)}°{units === 'metric' ? 'C' : 'F'}</p>
           <p className="text-muted">{data.weather[0].description}</p>
         </div>
@@ -44,7 +66,7 @@ const WeatherCard = ({ data, isLocal = false, units, onDetailsClick }) => {
         </div>
         <button 
           className="btn btn-primary"
-          onClick={() => onDetailsClick(data)}
+          onClick={handleDetailsClick}
         >
           More Details
         </button>

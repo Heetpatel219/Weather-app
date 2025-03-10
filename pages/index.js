@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
+import Layout from '../components/Layout';
 import SearchBar from '../components/SearchBar';
 import WeatherCard from '../components/WeatherCard';
 import WeatherModal from '../components/WeatherModal';
 import Pagination from '../components/Pagination';
 import { fetchWeatherByCoords, fetchWeatherByCity, fetchCitiesByQuery } from '../utils/weatherUtils';
+import { useAtom } from 'jotai';
+import { unitsAtom, addVisitedCityAtom } from '../store/weatherStore';
 
 export default function Home() {
   const [localWeather, setLocalWeather] = useState(null);
   const [displayedCities, setDisplayedCities] = useState([]);
-  const [units, setUnits] = useState('metric');
+  const [units, setUnits] = useAtom(unitsAtom);
   const [selectedWeather, setSelectedWeather] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [currentResults, setCurrentResults] = useState([]);
   const [error, setError] = useState('');
   const itemsPerPage = 3;
+  const [, addVisitedCity] = useAtom(addVisitedCityAtom);
 
   useEffect(() => {
     getCurrentLocation();
@@ -131,20 +134,24 @@ export default function Home() {
   };
 
   const handleDetailsClick = (data) => {
-    setSelectedWeather(data);
+    addVisitedCity(data);
+    window.location.href = `/city/${data.id}`;
   };
 
   return (
-    <div className="container">
-      <Head>
-        <title>Weather App</title>
-        <meta name="description" content="Next.js Weather Application" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <header className="text-center my-4">
+    <Layout title="Weather App - Home">
+      <div className="text-center my-4">
         <h1>Weather App</h1>
-      </header>
+        <p className="lead">Check the weather for your current location or search for a city</p>
+      </div>
+
+      <SearchBar 
+        onSearch={handleSearch} 
+        units={units} 
+        onUnitChange={handleUnitChange} 
+      />
+
+      {error && <div className="alert alert-danger">{error}</div>}
 
       {localWeather && (
         <div id="current-location" className="mb-4">
@@ -157,14 +164,6 @@ export default function Home() {
           />
         </div>
       )}
-
-      <SearchBar 
-        onSearch={handleSearch} 
-        units={units} 
-        onUnitChange={handleUnitChange} 
-      />
-
-      {error && <div className="alert alert-danger">{error}</div>}
 
       <div id="search-results" className="row g-4">
         {currentResults.map(city => (
@@ -189,6 +188,6 @@ export default function Home() {
         data={selectedWeather}
         units={units}
       />
-    </div>
+    </Layout>
   );
 } 

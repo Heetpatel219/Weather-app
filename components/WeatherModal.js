@@ -1,19 +1,21 @@
 import React, { useEffect, useRef } from 'react';
-import { Modal } from 'bootstrap';
 
 const WeatherModal = ({ id, data, units }) => {
   const modalRef = useRef(null);
   const bsModalRef = useRef(null);
 
   useEffect(() => {
-    if (modalRef.current && typeof window !== 'undefined') {
-      bsModalRef.current = new Modal(modalRef.current);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (data && bsModalRef.current) {
-      bsModalRef.current.show();
+    // Only import and initialize Bootstrap Modal on the client side
+    if (typeof window !== 'undefined' && modalRef.current) {
+      // Dynamically import Bootstrap's Modal
+      import('bootstrap/dist/js/bootstrap.bundle.min.js').then((Bootstrap) => {
+        const { Modal } = Bootstrap.default;
+        bsModalRef.current = new Modal(modalRef.current);
+        
+        if (data) {
+          bsModalRef.current.show();
+        }
+      });
     }
   }, [data]);
 
