@@ -80,9 +80,6 @@ const Layout = ({ children, title = 'Weather App' }) => {
 
       <main>{children}</main>
       
-      <footer className="text-center mt-5 mb-3">
-        <p>Weather App &copy; {new Date().getFullYear()}</p>
-      </footer>
     </div>
   );
 };
